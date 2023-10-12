@@ -224,6 +224,7 @@ public class ParquetPageSourceFactory
         try {
             dataSource = new TrinoParquetDataSource(inputFile, options, stats);
 
+            // read
             ParquetMetadata parquetMetadata = MetadataReader.readFooter(dataSource, parquetWriteValidation);
             FileMetaData fileMetaData = parquetMetadata.getFileMetaData();
             fileSchema = fileMetaData.getSchema();

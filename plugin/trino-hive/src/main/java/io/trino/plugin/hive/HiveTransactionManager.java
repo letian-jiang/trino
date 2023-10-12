@@ -74,7 +74,7 @@ public class HiveTransactionManager
     private class MemoizedMetadata
     {
         @GuardedBy("this")
-        private TransactionalMetadata metadata;
+        private TransactionalMetadata metadata; // memo
 
         public synchronized Optional<TransactionalMetadata> optionalGet()
         {

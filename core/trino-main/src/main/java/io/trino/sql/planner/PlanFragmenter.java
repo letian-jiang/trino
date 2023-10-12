@@ -309,6 +309,7 @@ public class PlanFragmenter
         @Override
         public PlanNode visitTableScan(TableScanNode node, RewriteContext<FragmentProperties> context)
         {
+            // 如果不使用Connector提供的NodePartitioning，默认为SOURCE
             PartitioningHandle partitioning = metadata.getTableProperties(session, node.getTable())
                     .getTablePartitioning()
                     .filter(value -> node.isUseConnectorNodePartitioning())
@@ -389,7 +390,9 @@ public class PlanFragmenter
         @Override
         public PlanNode visitExchange(ExchangeNode exchange, RewriteContext<FragmentProperties> context)
         {
+            // 只考虑remote exchange
             if (exchange.getScope() != REMOTE) {
+                // default writer会对孩子节点递归调用，然后changeChildren生成新节点
                 return context.defaultRewrite(exchange, context.get());
             }
 
@@ -399,6 +402,7 @@ public class PlanFragmenter
                 context.get().setSingleNodeDistribution();
             }
             else if (exchange.getType() == ExchangeNode.Type.REPARTITION) {
+                // 设置下游fragment的partition handle和partition count
                 context.get().setDistribution(
                         partitioningScheme.getPartitioning().getHandle(),
                         partitioningScheme.getPartitionCount(),
@@ -406,9 +410,11 @@ public class PlanFragmenter
                         session);
             }
 
+            // 每个子节点生成sub plan
             ImmutableList.Builder<FragmentProperties> childrenProperties = ImmutableList.builder();
             ImmutableList.Builder<SubPlan> childrenBuilder = ImmutableList.builder();
             for (int sourceIndex = 0; sourceIndex < exchange.getSources().size(); sourceIndex++) {
+                // 设置上游fragment的partition scheme（代表输出）
                 FragmentProperties childProperties = new FragmentProperties(partitioningScheme.translateOutputLayout(exchange.getInputs().get(sourceIndex)));
                 childrenProperties.add(childProperties);
                 childrenBuilder.add(buildSubPlan(exchange.getSources().get(sourceIndex), childProperties, context));
@@ -422,6 +428,7 @@ public class PlanFragmenter
                     .map(PlanFragment::getId)
                     .collect(toImmutableList());
 
+            // 替换为RemoteSourceNode，记录上游PlanFragment ID
             return new RemoteSourceNode(
                     exchange.getId(),
                     childrenIds,

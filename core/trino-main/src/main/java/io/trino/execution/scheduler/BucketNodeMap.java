@@ -24,8 +24,8 @@ import static java.util.Objects.requireNonNull;
 
 public final class BucketNodeMap
 {
-    private final List<InternalNode> bucketToNode;
-    private final ToIntFunction<Split> splitToBucket;
+    private final List<InternalNode> bucketToNode; // bucket -> node
+    private final ToIntFunction<Split> splitToBucket; // split -> bucket
 
     public BucketNodeMap(ToIntFunction<Split> splitToBucket, List<InternalNode> bucketToNode)
     {

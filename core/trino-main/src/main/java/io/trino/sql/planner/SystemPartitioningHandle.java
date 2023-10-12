@@ -39,10 +39,10 @@ public final class SystemPartitioningHandle
     enum SystemPartitioning
     {
         SINGLE,
-        FIXED,
+        FIXED, // 桶数固定
         SOURCE,
         COORDINATOR_ONLY,
-        ARBITRARY
+        ARBITRARY // 桶数不固定
     }
 
     public static final PartitioningHandle SINGLE_DISTRIBUTION = createSystemPartitioning(SystemPartitioning.SINGLE, SystemPartitionFunction.SINGLE);
@@ -130,6 +130,7 @@ public final class SystemPartitioningHandle
     @Override
     public String toString()
     {
+        // 如果为Fixed或者ARBITRARY，打印function name
         if (partitioning == SystemPartitioning.FIXED || partitioning == SystemPartitioning.ARBITRARY) {
             return function.toString();
         }
@@ -160,6 +161,7 @@ public final class SystemPartitioningHandle
             public BucketFunction createBucketFunction(List<Type> partitionChannelTypes, boolean isHashPrecomputed, int bucketCount, BlockTypeOperators blockTypeOperators)
             {
                 if (isHashPrecomputed) {
+                    // 似乎partition和bucket是一个同义的概念
                     return new HashBucketFunction(new PrecomputedHashGenerator(0), bucketCount);
                 }
 

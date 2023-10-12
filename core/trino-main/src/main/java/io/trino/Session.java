@@ -62,9 +62,9 @@ public final class Session
 {
     private final QueryId queryId;
     private final Span querySpan;
-    private final Optional<TransactionId> transactionId;
+    private final Optional<TransactionId> transactionId; // txn id
     private final boolean clientTransactionSupport;
-    private final Identity identity;
+    private final Identity identity; // user identity
     private final Optional<String> source;
     private final Optional<String> catalog;
     private final Optional<String> schema;

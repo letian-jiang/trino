@@ -24,7 +24,7 @@ public interface CatalogStore
     /**
      * Get all catalogs
      */
-    Collection<StoredCatalog> getCatalogs();
+    Collection<StoredCatalog> getCatalogs(); // stored catalog = name + properties
 
     /**
      * Create a catalog properties from the raw properties.  This allows the

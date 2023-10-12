@@ -39,6 +39,7 @@ public class FixedCountScheduler
     public FixedCountScheduler(StageExecution stageExecution, List<InternalNode> partitionToNode)
     {
         requireNonNull(stageExecution, "stage is null");
+        // initial splits为空
         this.taskScheduler = (node, partition) -> stageExecution.scheduleTask(node, partition, ImmutableMultimap.of());
         this.partitionToNode = requireNonNull(partitionToNode, "partitionToNode is null");
     }

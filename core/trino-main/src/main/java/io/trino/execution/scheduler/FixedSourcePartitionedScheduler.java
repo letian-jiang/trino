@@ -76,6 +76,7 @@ public class FixedSourcePartitionedScheduler
 
         checkArgument(splitSources.keySet().equals(ImmutableSet.copyOf(schedulingOrder)));
 
+        // 分配split时，要额外考虑remote source的分桶情况，此时分配是确定性的，不是动态的
         BucketedSplitPlacementPolicy splitPlacementPolicy = new BucketedSplitPlacementPolicy(nodeSelector, nodes, bucketNodeMap, stageExecution::getAllTasks);
 
         ArrayList<SourceScheduler> sourceSchedulers = new ArrayList<>();
@@ -83,6 +84,7 @@ public class FixedSourcePartitionedScheduler
         partitionIdAllocator = new PartitionIdAllocator();
         scheduledTasks = new HashMap<>();
         for (PlanNodeId planNodeId : schedulingOrder) {
+            // 每个local split source构建一个source scheduler
             SplitSource splitSource = splitSources.get(planNodeId);
             // TODO : change anySourceTaskBlocked to accommodate the correct blocked status of source tasks
             //  (ref : https://github.com/trinodb/trino/issues/4713)

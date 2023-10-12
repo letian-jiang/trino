@@ -28,7 +28,7 @@ public interface SplitRunner
 
     boolean isFinished();
 
-    ListenableFuture<Void> processFor(Duration duration);
+    ListenableFuture<Void> processFor(Duration duration); // 执行一段时间
 
     String getInfo();
 

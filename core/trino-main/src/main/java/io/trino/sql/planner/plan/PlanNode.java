@@ -71,6 +71,8 @@ import static java.util.Objects.requireNonNull;
         @JsonSubTypes.Type(value = TableFunctionNode.class, name = "tableFunction"),
         @JsonSubTypes.Type(value = TableFunctionProcessorNode.class, name = "tableFunctionProcessor"),
 })
+
+// immutable
 public abstract class PlanNode
 {
     private final PlanNodeId id;
@@ -89,8 +91,9 @@ public abstract class PlanNode
 
     public abstract List<PlanNode> getSources();
 
-    public abstract List<Symbol> getOutputSymbols();
+    public abstract List<Symbol> getOutputSymbols(); // output names
 
+    // 替换孩子节点，生成新节点
     public abstract PlanNode replaceChildren(List<PlanNode> newChildren);
 
     public <R, C> R accept(PlanVisitor<R, C> visitor, C context)

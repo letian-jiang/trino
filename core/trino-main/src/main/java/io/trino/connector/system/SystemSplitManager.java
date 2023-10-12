@@ -54,7 +54,7 @@ public class SystemSplitManager
     }
 
     @Override
-    public ConnectorSplitSource getSplits(
+    public ConnectorSplitSource getSplits( // table -> split source
             ConnectorTransactionHandle transaction,
             ConnectorSession session,
             ConnectorTableHandle tableHandle,
@@ -74,6 +74,10 @@ public class SystemSplitManager
             ConnectorSplit split = new SystemSplit(address, tableConstraint);
             return new FixedSplitSource(ImmutableList.of(split));
         }
+
+        // 这里distribution意味着table是分片的，也就是说
+        // ALL_COORDINATORS下所有coordinator都有split
+        // ALL_NODES下所有coordinator&worker都有split
 
         ImmutableList.Builder<ConnectorSplit> splits = ImmutableList.builder();
         ImmutableSet.Builder<InternalNode> nodes = ImmutableSet.builder();

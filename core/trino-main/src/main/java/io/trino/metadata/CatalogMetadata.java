@@ -29,7 +29,7 @@ import java.util.Set;
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static java.util.Objects.requireNonNull;
 
-public class CatalogMetadata
+public class CatalogMetadata // better to name it TransactionCatalogMetadata
 {
     private final String catalogName;
 
@@ -41,6 +41,7 @@ public class CatalogMetadata
     private static final Logger log = Logger.get(CatalogMetadata.class);
     private static final String INFORMATION_SCHEMA_NAME = "information_schema";
 
+    // related to txn
     private final CatalogTransaction catalogTransaction;
     private final CatalogTransaction informationSchemaTransaction;
     private final CatalogTransaction systemTransaction;

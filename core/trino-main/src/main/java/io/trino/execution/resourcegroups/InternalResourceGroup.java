@@ -585,7 +585,9 @@ public class InternalResourceGroup
 
     public void run(ManagedQueryExecution query)
     {
+        // 保证thread safe
         synchronized (root) {
+            // 保证当前resource group是叶子节点
             if (!subGroups.isEmpty()) {
                 throw new TrinoException(INVALID_RESOURCE_GROUP, format("Cannot add queries to %s. It is not a leaf group.", id));
             }
@@ -593,6 +595,7 @@ public class InternalResourceGroup
             InternalResourceGroup group = this;
             boolean canQueue = true;
             boolean canRun = true;
+            // 检查所有祖先节点的capacity, 判断run/enqueue/fail
             while (true) {
                 canQueue = canQueue && group.canQueueMore();
                 canRun = canRun && group.canRunMore();
@@ -667,7 +670,7 @@ public class InternalResourceGroup
                 group = group.parent.get();
             }
             updateEligibility();
-            executor.execute(query::startWaitingForResources);
+            executor.execute(query::startWaitingForResources); // 执行query::startWaitingForResources函数
         }
     }
 

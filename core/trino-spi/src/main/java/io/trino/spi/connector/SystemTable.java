@@ -25,6 +25,7 @@ public interface SystemTable
         ALL_NODES, ALL_COORDINATORS, SINGLE_COORDINATOR
     }
 
+    // 表示table的分布，用于生成split
     Distribution getDistribution();
 
     ConnectorTableMetadata getTableMetadata();

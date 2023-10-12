@@ -27,6 +27,7 @@ public interface NodeSelector
 
     List<InternalNode> allNodes();
 
+    // 返回coordinator
     InternalNode selectCurrentNode();
 
     default List<InternalNode> selectRandomNodes(int limit)
@@ -44,6 +45,7 @@ public interface NodeSelector
      * If we cannot find an assignment for a split, it is not included in the map. Also returns a future indicating when
      * to reattempt scheduling of this batch of splits, if some of them could not be scheduled.
      */
+    // 将split划分给nodes，existingTasks作为分配的hint(?)
     SplitPlacementResult computeAssignments(Set<Split> splits, List<RemoteTask> existingTasks);
 
     /**
@@ -54,5 +56,6 @@ public interface NodeSelector
      * If we cannot find an assignment for a split, it is not included in the map. Also returns a future indicating when
      * to reattempt scheduling of this batch of splits, if some of them could not be scheduled.
      */
+    // 将split划分给nodes，existingTasks作为分配的hint(?)，还有一个关于split -> bucket -> node的map
     SplitPlacementResult computeAssignments(Set<Split> splits, List<RemoteTask> existingTasks, BucketNodeMap bucketNodeMap);
 }

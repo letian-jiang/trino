@@ -274,7 +274,9 @@ public final class MetadataManager
         }
 
         return getOptionalCatalogMetadata(session, table.getCatalogName()).flatMap(catalogMetadata -> {
+            // 获取table handle
             CatalogHandle catalogHandle = catalogMetadata.getCatalogHandle(session, table);
+            //
             ConnectorMetadata metadata = catalogMetadata.getMetadataFor(session, catalogHandle);
 
             ConnectorSession connectorSession = session.toConnectorSession(catalogHandle);

@@ -25,7 +25,7 @@ import java.util.stream.IntStream;
 import static java.util.Objects.requireNonNull;
 
 // When the probe side of join is bucketed but builder side is not,
-// bucket to partition mapping has to be populated to builder side remote fragment.
+// bucket to partition mapping has to be populated to builder side remote fragment.(?)
 // NodePartitionMap is required in this case and cannot be replaced by BucketNodeMap.
 //
 //      Join
@@ -34,13 +34,14 @@ import static java.util.Objects.requireNonNull;
 //
 public class NodePartitionMap
 {
-    private final List<InternalNode> partitionToNode;
-    private final int[] bucketToPartition;
-    private final ToIntFunction<Split> splitToBucket;
+    private final List<InternalNode> partitionToNode; // partition -> node
+    private final int[] bucketToPartition; // bucket -> partition (是一对一关系吗?）
+    private final ToIntFunction<Split> splitToBucket; // split -> bucket
 
     public NodePartitionMap(List<InternalNode> partitionToNode, ToIntFunction<Split> splitToBucket)
     {
         this.partitionToNode = ImmutableList.copyOf(requireNonNull(partitionToNode, "partitionToNode is null"));
+        // 默认是一对一关系，即 bucket_i = partition_i
         this.bucketToPartition = IntStream.range(0, partitionToNode.size()).toArray();
         this.splitToBucket = requireNonNull(splitToBucket, "splitToBucket is null");
     }

@@ -31,8 +31,8 @@ public class StatsAndCosts
 {
     private static final StatsAndCosts EMPTY = new StatsAndCosts(ImmutableMap.of(), ImmutableMap.of());
 
-    private final Map<PlanNodeId, PlanNodeStatsEstimate> stats;
-    private final Map<PlanNodeId, PlanCostEstimate> costs;
+    private final Map<PlanNodeId, PlanNodeStatsEstimate> stats; // 统计信息，如row count/bytes
+    private final Map<PlanNodeId, PlanCostEstimate> costs; // cost，如cpu/mem/network
 
     public static StatsAndCosts empty()
     {

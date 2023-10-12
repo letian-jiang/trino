@@ -32,6 +32,7 @@ public class PrecomputedHashGenerator
     public long hashPosition(int position, Page page)
     {
         Block hashBlock = page.getBlock(hashChannel);
+        // 默认hash值是int64
         return hashBlock.getLong(position, 0);
     }
 

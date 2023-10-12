@@ -116,6 +116,7 @@ public class MultiSourcePartitionedScheduler
 
         while (!sourceSchedulers.isEmpty()) {
             SourceScheduler scheduler = sourceSchedulers.peek();
+            // 调度每个source
             ScheduleResult scheduleResult = scheduler.schedule();
 
             splitsScheduled += scheduleResult.getSplitsScheduled();

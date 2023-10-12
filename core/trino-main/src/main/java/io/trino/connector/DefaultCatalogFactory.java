@@ -168,6 +168,8 @@ public class DefaultCatalogFactory
                 () -> {});
 
         SystemTablesProvider systemTablesProvider;
+        // 区分coordinator还是worker
+        // connector提供的是static system table
         if (nodeManager.getCurrentNode().isCoordinator()) {
             systemTablesProvider = new CoordinatorSystemTablesProvider(
                     transactionManager,
@@ -176,6 +178,7 @@ public class DefaultCatalogFactory
                     new StaticSystemTablesProvider(catalogConnector.getSystemTables()));
         }
         else {
+            // worker封装connector提供的system table
             systemTablesProvider = new StaticSystemTablesProvider(catalogConnector.getSystemTables());
         }
 

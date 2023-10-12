@@ -33,8 +33,8 @@ public final class CatalogHandle
     private static final int INSTANCE_SIZE = instanceSize(CatalogHandle.class);
 
     private final String catalogName;
-    private final CatalogHandleType type;
-    private final CatalogHandle rootCatalogHandle;
+    private final CatalogHandleType type; // NORMAL, INFORMATION_SCHEMA, SYSTEM
+    private final CatalogHandle rootCatalogHandle; // point to NORMAL catalog handle
     private final CatalogVersion version;
 
     public static CatalogHandle createRootCatalogHandle(String catalogName, CatalogVersion version)

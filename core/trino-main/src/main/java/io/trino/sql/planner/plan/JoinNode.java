@@ -48,8 +48,8 @@ public class JoinNode
 {
     public enum DistributionType
     {
-        PARTITIONED,
-        REPLICATED
+        PARTITIONED, // hash join
+        REPLICATED // broadcast join
     }
 
     public enum Type

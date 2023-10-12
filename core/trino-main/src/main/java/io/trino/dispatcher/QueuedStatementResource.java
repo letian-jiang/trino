@@ -160,7 +160,7 @@ public class QueuedStatementResource
     @ResourceSecurity(AUTHENTICATED_USER)
     @POST
     @Produces(APPLICATION_JSON)
-    public Response postStatement(
+    public Response postStatement( // 入口
             String statement,
             @Context HttpServletRequest servletRequest,
             @Context HttpHeaders httpHeaders,

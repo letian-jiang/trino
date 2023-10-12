@@ -397,10 +397,12 @@ public class SqlQueryExecution
                 }, directExecutor());
 
                 try {
+                    // planner + fragmenter
                     PlanRoot plan = planQuery();
                     // DynamicFilterService needs plan for query to be registered.
                     // Query should be registered before dynamic filter suppliers are requested in distribution planning.
                     registerDynamicFilteringQuery(plan);
+                    // 创建query scheduler
                     planDistribution(plan);
                 }
                 finally {

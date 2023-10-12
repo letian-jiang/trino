@@ -88,8 +88,10 @@ public interface Metadata
      */
     Optional<TableHandle> getTableHandle(Session session, QualifiedObjectName tableName);
 
+    // e.g. manifests, snapshots
     Optional<SystemTable> getSystemTable(Session session, QualifiedObjectName tableName);
 
+    // e.g. optimize, remove_orphan
     Optional<TableExecuteHandle> getTableHandleForExecute(
             Session session,
             TableHandle tableHandle,

@@ -86,7 +86,7 @@ public enum InformationSchemaTable
 
     public static final String INFORMATION_SCHEMA = "information_schema";
 
-    private final ConnectorTableMetadata tableMetadata;
+    private final ConnectorTableMetadata tableMetadata; // only field
 
     InformationSchemaTable(ConnectorTableMetadata tableMetadata)
     {

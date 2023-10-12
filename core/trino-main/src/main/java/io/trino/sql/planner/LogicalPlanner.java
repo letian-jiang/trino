@@ -168,7 +168,9 @@ public class LogicalPlanner
 
     public enum Stage
     {
-        CREATED, OPTIMIZED, OPTIMIZED_AND_VALIDATED
+        CREATED, // 生成计划
+        OPTIMIZED, // 生成计划 + 优化
+        OPTIMIZED_AND_VALIDATED // 生成计划 + 优化 + 验证
     }
 
     private final PlanNodeIdAllocator idAllocator;
@@ -242,6 +244,7 @@ public class LogicalPlanner
     {
         PlanNode root;
         try (var ignored = scopedSpan(plannerContext.getTracer(), "plan")) {
+            // planner
             root = planStatement(analysis, analysis.getStatement());
         }
 
@@ -266,6 +269,7 @@ public class LogicalPlanner
         if (stage.ordinal() >= OPTIMIZED.ordinal()) {
             try (var ignored = scopedSpan(plannerContext.getTracer(), "optimizer")) {
                 for (PlanOptimizer optimizer : planOptimizers) {
+                    // optimizer
                     root = runOptimizer(root, tableStatsProvider, optimizer);
                 }
             }
@@ -274,6 +278,7 @@ public class LogicalPlanner
         if (stage.ordinal() >= OPTIMIZED_AND_VALIDATED.ordinal()) {
             // make sure we produce a valid plan after optimizations run. This is mainly to catch programming errors
             try (var ignored = scopedSpan(plannerContext.getTracer(), "validate-final")) {
+                // validate
                 planSanityChecker.validateFinalPlan(root, session, plannerContext, typeAnalyzer, symbolAllocator.getTypes(), warningCollector);
             }
         }
@@ -346,6 +351,7 @@ public class LogicalPlanner
 
     private RelationPlan planStatementWithoutOutput(Analysis analysis, Statement statement)
     {
+        // 根据statement类型调用不同的planner
         if (statement instanceof CreateTableAsSelect) {
             if (analysis.getCreate().orElseThrow().isCreateTableAsSelectNoOp()) {
                 throw new TrinoException(NOT_SUPPORTED, "CREATE TABLE IF NOT EXISTS is not supported in this context " + statement.getClass().getSimpleName());

@@ -23,7 +23,7 @@ import static java.util.Objects.requireNonNull;
 public final class SplitPlacementResult
 {
     private final ListenableFuture<Void> blocked;
-    private final Multimap<InternalNode, Split> assignments;
+    private final Multimap<InternalNode, Split> assignments; // node -> a list of splits
 
     public SplitPlacementResult(ListenableFuture<Void> blocked, Multimap<InternalNode, Split> assignments)
     {

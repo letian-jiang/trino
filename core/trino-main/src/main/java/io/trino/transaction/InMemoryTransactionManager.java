@@ -74,9 +74,10 @@ public class InMemoryTransactionManager
 {
     private static final Logger log = Logger.get(InMemoryTransactionManager.class);
 
-    private final Duration idleTimeout;
+    private final Duration idleTimeout; // expire if timeout
     private final int maxFinishingConcurrency;
 
+    // txn id -> txn metadata
     private final ConcurrentMap<TransactionId, TransactionMetadata> transactions = new ConcurrentHashMap<>();
     private final CatalogManager catalogManager;
     private final Executor finishingExecutor;
@@ -208,8 +209,8 @@ public class InMemoryTransactionManager
     public Optional<CatalogMetadata> getOptionalCatalogMetadata(TransactionId transactionId, String catalogName)
     {
         TransactionMetadata transactionMetadata = getTransactionMetadata(transactionId);
-        return transactionMetadata.tryRegisterCatalog(catalogName)
-                .map(transactionMetadata::getTransactionCatalogMetadata);
+        return transactionMetadata.tryRegisterCatalog(catalogName) // 获取catalog handle
+                .map(transactionMetadata::getTransactionCatalogMetadata); // 根据catalog handle获取metadata
     }
 
     @Override
@@ -456,9 +457,11 @@ public class InMemoryTransactionManager
                 // catalog name will not be an internal catalog (e.g., information schema) because internal
                 // catalog references can only be generated from the main catalog
                 checkArgument(!catalogHandle.getType().isInternal(), "Internal catalog handle not allowed: %s", catalogHandle);
+                // catalog包含三个connector
                 Catalog catalog = registeredCatalogs.getOrDefault(catalogHandle.getCatalogName(), Optional.empty())
                         .orElseThrow(() -> new IllegalArgumentException("No catalog registered for handle: " + catalogHandle));
 
+                // 传入txn id
                 catalogMetadata = catalog.beginTransaction(transactionId, isolationLevel, readOnly, autoCommitContext);
 
                 activeCatalogs.put(catalogHandle, catalogMetadata);

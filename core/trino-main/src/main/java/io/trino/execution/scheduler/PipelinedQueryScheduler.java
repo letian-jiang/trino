@@ -290,6 +290,7 @@ public class PipelinedQueryScheduler
             queryStateMachine.updateQueryInfo(Optional.ofNullable(getStageInfo()));
         });
 
+        // 创建distributedStagesScheduler，distributed stages是可以重试的
         Optional<DistributedStagesScheduler> distributedStagesScheduler = createDistributedStagesScheduler(currentAttempt.get());
 
         coordinatorStagesScheduler.schedule();
@@ -908,6 +909,7 @@ public class PipelinedQueryScheduler
                 List<StageExecution> children = stageManager.getChildren(stageExecution.getStageId()).stream()
                         .map(stage -> requireNonNull(stageExecutions.get(stage.getStageId()), () -> "stage execution not found for stage: " + stage))
                         .collect(toImmutableList());
+                // 根据partition创建scheduler
                 StageScheduler scheduler = createStageScheduler(
                         queryStateMachine,
                         stageExecution,
@@ -1032,6 +1034,9 @@ public class PipelinedQueryScheduler
             PlanFragment fragment = stageExecution.getFragment();
             PartitioningHandle partitioningHandle = fragment.getPartitioning();
             Optional<Integer> partitionCount = fragment.getPartitionCount();
+
+            // 获取fragment的split source，每个split source对应一个table scan
+            // 表示local source
             Map<PlanNodeId, SplitSource> splitSources = splitSourceFactory.createSplitSources(session, stageSpan, fragment);
             if (!splitSources.isEmpty()) {
                 queryStateMachine.addStateChangeListener(new StateChangeListener<>()
@@ -1054,15 +1059,18 @@ public class PipelinedQueryScheduler
 
             if (partitioningHandle.equals(SOURCE_DISTRIBUTION)) {
                 // nodes are selected dynamically based on the constraints of the splits and the system load
+                // 单个split source
                 if (splitSources.size() == 1) {
                     Entry<PlanNodeId, SplitSource> entry = getOnlyElement(splitSources.entrySet());
                     PlanNodeId planNodeId = entry.getKey();
                     SplitSource splitSource = entry.getValue();
+                    // 过滤internal catalog，即information schema和system
                     Optional<CatalogHandle> catalogHandle = Optional.of(splitSource.getCatalogHandle())
                             .filter(catalog -> !catalog.getType().isInternal());
                     NodeSelector nodeSelector = nodeScheduler.createNodeSelector(session, catalogHandle);
                     SplitPlacementPolicy placementPolicy = new DynamicSplitPlacementPolicy(nodeSelector, stageExecution::getAllTasks);
 
+                    // 创建单个source scheduler，并且封装为stage scheduler
                     return newSourcePartitionedSchedulerAsStageScheduler(
                             stageExecution,
                             planNodeId,
@@ -1082,10 +1090,13 @@ public class PipelinedQueryScheduler
 
                 Optional<CatalogHandle> catalogHandle = allCatalogHandles.size() == 1 ? Optional.of(getOnlyElement(allCatalogHandles)) : Optional.empty();
 
+                // 传入node selector，将splits分配到不同节点上
                 NodeSelector nodeSelector = nodeScheduler.createNodeSelector(session, catalogHandle);
+                // 创建多个source的stage scheduler
                 return new MultiSourcePartitionedScheduler(
                         stageExecution,
                         splitSources,
+                        // 将node selector封装为split placement policy
                         new DynamicSplitPlacementPolicy(nodeSelector, stageExecution::getAllTasks),
                         splitBatchSize,
                         dynamicFilterService,
@@ -1125,21 +1136,29 @@ public class PipelinedQueryScheduler
                 return new FixedCountScheduler(stageExecution, partitionToNode);
             }
 
+            // 这是什么情况下？
             // contains local source
+            // 但又不是source partition
             List<PlanNodeId> schedulingOrder = fragment.getPartitionedSources();
             Optional<CatalogHandle> catalogHandle = partitioningHandle.getCatalogHandle();
             checkArgument(catalogHandle.isPresent(), "No catalog handle for partitioning handle: %s", partitioningHandle);
 
-            BucketNodeMap bucketNodeMap;
-            List<InternalNode> stageNodeList;
+            BucketNodeMap bucketNodeMap; // split -> bucket -> node
+            List<InternalNode> stageNodeList; // all nodes
+
+            // 这里的remote source指的是plan里的remote source node
             if (fragment.getRemoteSourceNodes().stream().allMatch(node -> node.getExchangeType() == REPLICATE)) {
                 // no remote source
+                // replicate的remote source可以忽略？也就是说，每个节点都会收到source的全部数据
+                // 此时remote source和调度无关了
                 bucketNodeMap = nodePartitioningManager.getBucketNodeMap(session, partitioningHandle);
                 stageNodeList = new ArrayList<>(nodeScheduler.createNodeSelector(session, catalogHandle).allNodes());
                 Collections.shuffle(stageNodeList);
             }
             else {
                 // remote source requires nodePartitionMap
+                // 因为remote source会有分桶的行为
+                // 所有在调度时需要考虑这一点，同时考虑local source和remote source，确保二者的分桶是一致的
                 NodePartitionMap nodePartitionMap = partitioningCache.apply(new PartitioningKey(partitioningHandle, partitionCount));
                 stageNodeList = nodePartitionMap.getPartitionToNode();
                 bucketNodeMap = nodePartitionMap.asBucketNodeMap();
@@ -1257,11 +1276,13 @@ public class PipelinedQueryScheduler
                 stageSchedulers.values().forEach(StageScheduler::start);
                 while (!executionSchedule.isFinished()) {
                     List<ListenableFuture<Void>> blockedStages = new ArrayList<>();
+                    // 获取一批可以调度的stage
                     StagesScheduleResult stagesScheduleResult = executionSchedule.getStagesToSchedule();
                     for (StageExecution stageExecution : stagesScheduleResult.getStagesToSchedule()) {
                         stageExecution.beginScheduling();
 
                         // perform some scheduling work
+                        // do schedule
                         ScheduleResult result = stageSchedulers.get(stageExecution.getStageId())
                                 .schedule();
 

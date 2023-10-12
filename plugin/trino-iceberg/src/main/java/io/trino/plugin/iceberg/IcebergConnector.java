@@ -195,6 +195,7 @@ public class IcebergConnector
     {
         checkConnectorSupports(SERIALIZABLE, isolationLevel);
         ConnectorTransactionHandle transaction = new HiveTransactionHandle(autoCommit);
+        // register txn handle
         transactionManager.begin(transaction);
         return transaction;
     }

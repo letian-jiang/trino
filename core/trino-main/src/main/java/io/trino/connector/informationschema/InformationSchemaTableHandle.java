@@ -31,7 +31,7 @@ public class InformationSchemaTableHandle
 {
     private final String catalogName;
     private final InformationSchemaTable table;
-    private final Set<QualifiedTablePrefix> prefixes;
+    private final Set<QualifiedTablePrefix> prefixes; // predicate e.g (tpch.tiny.*)
     private final OptionalLong limit;
 
     @JsonCreator

@@ -309,7 +309,7 @@ public class IcebergMetadata
 
     private final Map<IcebergTableHandle, TableStatistics> tableStatisticsCache = new ConcurrentHashMap<>();
 
-    private Transaction transaction;
+    private Transaction transaction; // mutable
 
     public IcebergMetadata(
             TypeManager typeManager,
@@ -361,7 +361,7 @@ public class IcebergMetadata
     public ConnectorTableHandle getTableHandle(
             ConnectorSession session,
             SchemaTableName tableName,
-            Optional<ConnectorTableVersion> startVersion,
+            Optional<ConnectorTableVersion> startVersion, // MVCC?
             Optional<ConnectorTableVersion> endVersion)
     {
         if (startVersion.isPresent()) {
@@ -392,7 +392,7 @@ public class IcebergMetadata
         Optional<Long> tableSnapshotId;
         Schema tableSchema;
         Optional<PartitionSpec> partitionSpec;
-        if (endVersion.isPresent()) {
+        if (endVersion.isPresent()) { // use end version if present
             long snapshotId = getSnapshotIdFromVersion(table, endVersion.get());
             tableSnapshotId = Optional.of(snapshotId);
             tableSchema = schemaFor(table, snapshotId);
@@ -411,7 +411,7 @@ public class IcebergMetadata
                 tableName.getSchemaName(),
                 tableName.getTableName(),
                 DATA,
-                tableSnapshotId,
+                tableSnapshotId, // snapshot
                 SchemaParser.toJson(tableSchema),
                 partitionSpec.map(PartitionSpecParser::toJson),
                 table.operations().current().formatVersion(),
@@ -593,6 +593,7 @@ public class IcebergMetadata
     @Override
     public ConnectorTableMetadata getTableMetadata(ConnectorSession session, ConnectorTableHandle table)
     {
+        // 检查是否是iceberg table handle
         IcebergTableHandle tableHandle = checkValidTableHandle(table);
         // This method does not calculate column metadata for the projected columns
         checkArgument(tableHandle.getProjectedColumns().isEmpty(), "Unexpected projected columns");

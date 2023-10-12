@@ -3197,9 +3197,11 @@ public class LocalExecutionPlanner
                 log.debug("[Semi-join] Dynamic filter: %s", filterId);
                 ImmutableList.Builder<Consumer<Map<DynamicFilterId, Domain>>> collectors = ImmutableList.builder();
                 TaskContext taskContext = context.getTaskContext();
+                // 如果是Local DF，加入localDynamicFiltersCollector
                 if (isLocalDynamicFilter) {
                     collectors.add(taskContext::addDynamicFilter);
                 }
+                // 如果是Global DF，通过taskContext.updateDomains加入dynamicFiltersCollector
                 if (isCoordinatorDynamicFilter) {
                     collectors.add(getCoordinatorDynamicFilterDomainsCollector(taskContext, ImmutableSet.of(filterId)));
                 }

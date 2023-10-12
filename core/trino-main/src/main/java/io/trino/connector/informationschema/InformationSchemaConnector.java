@@ -31,15 +31,15 @@ public class InformationSchemaConnector
         implements InternalConnector
 {
     private final ConnectorMetadata metadata;
-    private final ConnectorSplitManager splitManager;
-    private final ConnectorPageSourceProvider pageSourceProvider;
+    private final ConnectorSplitManager splitManager; // table -> split source
+    private final ConnectorPageSourceProvider pageSourceProvider; // split -> page source
 
     public InformationSchemaConnector(String catalogName, InternalNodeManager nodeManager, Metadata metadata, AccessControl accessControl)
     {
         requireNonNull(catalogName, "catalogName is null");
         requireNonNull(metadata, "metadata is null");
 
-        this.metadata = new InformationSchemaMetadata(catalogName, metadata);
+        this.metadata = new InformationSchemaMetadata(catalogName, metadata); // wrap metadata
         this.splitManager = new InformationSchemaSplitManager(nodeManager);
         this.pageSourceProvider = new InformationSchemaPageSourceProvider(metadata, accessControl);
     }

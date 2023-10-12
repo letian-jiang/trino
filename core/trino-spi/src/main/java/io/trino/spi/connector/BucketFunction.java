@@ -22,4 +22,6 @@ public interface BucketFunction
      * Note the tuple values may be null.
      */
     int getBucket(Page page, int position);
+    // tuple(page, position) -> bucket
+    // 同一个page的不同tuple可能会属于不同的bucket？
 }

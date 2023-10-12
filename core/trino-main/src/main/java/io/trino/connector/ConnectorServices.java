@@ -59,13 +59,13 @@ import static io.trino.metadata.CatalogMetadata.SecurityManagement.SYSTEM;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
-public class ConnectorServices
+public class ConnectorServices // wrap connector and provide services
 {
     private static final Logger log = Logger.get(ConnectorServices.class);
 
     private final Tracer tracer;
-    private final CatalogHandle catalogHandle;
-    private final Connector connector;
+    private final CatalogHandle catalogHandle; // NORMAL, INFORMATION_SCHEMA, SYSTEM
+    private final Connector connector; // spi
     private final Runnable afterShutdown;
     private final Set<SystemTable> systemTables;
     private final CatalogProcedures procedures;
@@ -76,7 +76,7 @@ public class ConnectorServices
     private final Optional<ConnectorPageSourceProvider> pageSourceProvider;
     private final Optional<ConnectorPageSinkProvider> pageSinkProvider;
     private final Optional<ConnectorIndexProvider> indexProvider;
-    private final Optional<ConnectorNodePartitioningProvider> partitioningProvider;
+    private final Optional<ConnectorNodePartitioningProvider> partitioningProvider; // ？
     private final Optional<ConnectorAccessControl> accessControl;
     private final List<EventListener> eventListeners;
     private final Map<String, PropertyMetadata<?>> sessionProperties;
@@ -89,6 +89,7 @@ public class ConnectorServices
 
     private final AtomicBoolean shutdown = new AtomicBoolean();
 
+    // 传入connector，调用connector API，屏蔽具体实现
     public ConnectorServices(Tracer tracer, CatalogHandle catalogHandle, Connector connector, Runnable afterShutdown)
     {
         this.tracer = requireNonNull(tracer, "tracer is null");

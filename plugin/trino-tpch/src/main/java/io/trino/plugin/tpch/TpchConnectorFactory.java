@@ -79,7 +79,7 @@ public class TpchConnectorFactory
         checkStrictSpiVersionMatch(context, this);
 
         int splitsPerNode = getSplitsPerNode(properties);
-        ColumnNaming columnNaming = ColumnNaming.valueOf(properties.getOrDefault(TPCH_COLUMN_NAMING_PROPERTY, ColumnNaming.SIMPLIFIED.name()).toUpperCase(ENGLISH));
+        ColumnNaming columnNaming = ColumnNaming.valueOf(properties.getOrDefault(TPCH_COLUMN_NAMING_PROPERTY, ColumnNaming.STANDARD.name()).toUpperCase(ENGLISH));
         DecimalTypeMapping decimalTypeMapping = DecimalTypeMapping.valueOf(properties.getOrDefault(TPCH_DOUBLE_TYPE_MAPPING_PROPERTY, DecimalTypeMapping.DOUBLE.name()).toUpperCase(ENGLISH));
         boolean partitioningEnabled = Boolean.parseBoolean(properties.getOrDefault(TPCH_PARTITIONING_ENABLED, "true"));
         NodeManager nodeManager = context.getNodeManager();

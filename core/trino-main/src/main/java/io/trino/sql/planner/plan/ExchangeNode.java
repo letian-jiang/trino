@@ -45,9 +45,9 @@ public class ExchangeNode
 {
     public enum Type
     {
-        GATHER,
-        REPARTITION,
-        REPLICATE
+        GATHER, // 数据合并
+        REPARTITION, // 数据shuffle，如hash或者round robin
+        REPLICATE // 复制多份
     }
 
     public enum Scope
@@ -59,7 +59,7 @@ public class ExchangeNode
     private final Type type;
     private final Scope scope;
 
-    private final List<PlanNode> sources;
+    private final List<PlanNode> sources; // 输入可以是多个node，要求layout相同
 
     private final PartitioningScheme partitioningScheme;
 

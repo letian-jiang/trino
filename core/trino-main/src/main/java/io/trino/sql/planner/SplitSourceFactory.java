@@ -107,6 +107,7 @@ public class SplitSourceFactory
         ImmutableList.Builder<SplitSource> allSplitSources = ImmutableList.builder();
         try {
             // get splits for this fragment, this is lazy so split assignments aren't actually calculated here
+            // 看visit函数如何统计split source
             return fragment.getRoot().accept(
                     new Visitor(session, stageSpan, TypeProvider.copyOf(fragment.getSymbols()), allSplitSources),
                     null);
@@ -156,6 +157,7 @@ public class SplitSourceFactory
         @Override
         public Map<PlanNodeId, SplitSource> visitTableScan(TableScanNode node, Void context)
         {
+            // 访问到table scan，加入split source
             SplitSource splitSource = createSplitSource(node.getTable(), node.getAssignments(), Optional.empty());
 
             splitSources.add(splitSource);
@@ -253,6 +255,7 @@ public class SplitSourceFactory
         @Override
         public Map<PlanNodeId, SplitSource> visitFilter(FilterNode node, Void context)
         {
+            // 访问到table scan + filter，加入split source
             if (node.getSource() instanceof TableScanNode scan) {
                 SplitSource splitSource = createSplitSource(scan.getTable(), scan.getAssignments(), Optional.of(node.getPredicate()));
 

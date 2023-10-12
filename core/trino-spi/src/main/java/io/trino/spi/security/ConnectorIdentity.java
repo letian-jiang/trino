@@ -24,7 +24,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 import static java.util.Objects.requireNonNull;
 
-public class ConnectorIdentity
+public class ConnectorIdentity // user identity
 {
     private final String user;
     private final Set<String> groups;

@@ -162,8 +162,11 @@ public class UniformNodeSelector
     @Override
     public SplitPlacementResult computeAssignments(Set<Split> splits, List<RemoteTask> existingTasks)
     {
+        // node -> list<split>
         Multimap<InternalNode, Split> assignment = HashMultimap.create();
         NodeMap nodeMap = this.nodeMap.get().get();
+
+        // 根据已分配的task计算stats，作为当前分配的依据
         NodeAssignmentStats assignmentStats = new NodeAssignmentStats(nodeTaskMap, nodeMap, existingTasks);
         queueSizeAdjuster.update(existingTasks, assignmentStats);
         Set<InternalNode> blockedExactNodes = new HashSet<>();
@@ -179,9 +182,11 @@ public class UniformNodeSelector
         // optimizedLocalScheduling enables prioritized assignment of splits to local nodes when splits contain locality information
         if (optimizedLocalScheduling) {
             for (Split split : splits) {
+                // 如果split可以调度到任意节点，那么它的host节点优先
                 if (split.isRemotelyAccessible() && !split.getAddresses().isEmpty()) {
                     List<InternalNode> candidateNodes = selectExactNodes(nodeMap, split.getAddresses(), includeCoordinator);
 
+                    // 选择splits weight最小的candidate
                     Optional<InternalNode> chosenNode = candidateNodes.stream()
                             .filter(ownerNode -> assignmentStats.getTotalSplitsWeight(ownerNode) < maxSplitsWeightPerNode && assignmentStats.getUnacknowledgedSplitCountForStage(ownerNode) < maxUnacknowledgedSplitsPerTask)
                             .min(comparingLong(assignmentStats::getTotalSplitsWeight));
@@ -208,7 +213,7 @@ public class UniformNodeSelector
                 candidateNodes = selectExactNodes(nodeMap, split.getAddresses(), includeCoordinator);
             }
             else {
-                candidateNodes = selectNodes(minCandidates, randomCandidates);
+                candidateNodes = selectNodes(minCandidates, randomCandidates); // 不再需要addr作为hint
             }
             if (candidateNodes.isEmpty()) {
                 log.debug("No nodes available to schedule %s. Available nodes %s", split, nodeMap.getNodesByHost().keys());
@@ -261,6 +266,7 @@ public class UniformNodeSelector
             blocked = toWhenHasSplitQueueSpaceFuture(blockedExactNodes, existingTasks, calculateLowWatermark(minPendingSplitsWeightPerTask));
         }
 
+        // 如果存在locality schedule，会尝试重新调整，尽可能uniform
         if (splitsToBeRedistributed) {
             equateDistribution(assignment, assignmentStats, nodeMap, includeCoordinator);
         }

@@ -1621,7 +1621,7 @@ public class SemiTransactionalHiveMetastore
             // The next section will deal with "dropping table/partition". Commit may still fail in
             // this section. Even if commit fails, cleanups, instead of rollbacks, will be executed.
 
-            committer.executeIrreversibleMetastoreOperations();
+            committer.executeIrreversibleMetastoreOperations(); // cannot recover
 
             // If control flow reached this point, this commit is considered successful no matter
             // what happens later. The only kind of operations that haven't been carried out yet

@@ -58,7 +58,7 @@ import static java.util.Objects.requireNonNull;
 
 public class NodePartitioningManager
 {
-    private final NodeScheduler nodeScheduler;
+    private final NodeScheduler nodeScheduler; // schedule task to node
     private final BlockTypeOperators blockTypeOperators;
     private final CatalogServiceProvider<ConnectorNodePartitioningProvider> partitioningProvider;
 
@@ -155,20 +155,23 @@ public class NodePartitioningManager
         requireNonNull(session, "session is null");
         requireNonNull(partitioningHandle, "partitioningHandle is null");
 
+        // 系统partition handle
         if (partitioningHandle.getConnectorHandle() instanceof SystemPartitioningHandle) {
             return systemNodePartitionMap(session, partitioningHandle, systemPartitioningCache, partitionCount);
         }
 
+        // merge handle
         if (partitioningHandle.getConnectorHandle() instanceof MergePartitioningHandle mergeHandle) {
             return mergeHandle.getNodePartitioningMap(handle ->
                     getNodePartitioningMap(session, handle, bucketToNodeCache, systemPartitioningCache, partitionCount));
         }
 
+        // connector提供的partition handle
         Optional<ConnectorBucketNodeMap> optionalMap = getConnectorBucketNodeMap(session, partitioningHandle);
         if (optionalMap.isEmpty()) {
             return systemNodePartitionMap(session, FIXED_HASH_DISTRIBUTION, systemPartitioningCache, partitionCount);
         }
-        ConnectorBucketNodeMap connectorBucketNodeMap = optionalMap.get();
+        ConnectorBucketNodeMap connectorBucketNodeMap = optionalMap.get(); // bucket -> node
 
         // safety check for crazy partitioning
         checkArgument(connectorBucketNodeMap.getBucketCount() < 1_000_000, "Too many buckets in partitioning: %s", connectorBucketNodeMap.getBucketCount());
@@ -184,6 +187,8 @@ public class NodePartitioningManager
                     bucketCount -> createArbitraryBucketToNode(getAllNodes(session, catalogHandle), bucketCount));
         }
 
+        // node和partition是一对一关系
+        // 在同一个node上的bucket会被划分成一个partition
         int[] bucketToPartition = new int[connectorBucketNodeMap.getBucketCount()];
         BiMap<InternalNode, Integer> nodeToPartition = HashBiMap.create();
         int nextPartitionId = 0;
@@ -202,6 +207,17 @@ public class NodePartitioningManager
                 .mapToObj(partitionId -> nodeToPartition.inverse().get(partitionId))
                 .collect(toImmutableList());
 
+//        // 重写这段逻辑
+//        List<InternalNode> partitionToNode2 = bucketToNode.stream().distinct().toList();
+//
+//        // transform inversely to a mapping from node to partition
+//        Map<InternalNode, Integer> nodeToPartition2 = new HashMap<>();
+//        for (int partitionId = 0; partitionId < partitionToNode2.size(); partitionId++) {
+//            InternalNode node = partitionToNode2.get(partitionId);
+//            nodeToPartition2.put(node, partitionId);
+//        }
+//
+//        int[] bucketToPartition2 = bucketToNode.stream().map(nodeToPartition2::get).mapToInt(i -> i).toArray();
         return new NodePartitionMap(partitionToNode, bucketToPartition, getSplitToBucket(session, partitioningHandle));
     }
 
@@ -221,6 +237,7 @@ public class NodePartitioningManager
             case FIXED -> {
                 List<InternalNode> value = nodesCache.get();
                 if (value == null) {
+                    // 默认分区数为max_hash_partition_count
                     value = nodeSelector.selectRandomNodes(partitionCount.orElse(getMaxHashPartitionCount(session)));
                     nodesCache.set(value);
                 }

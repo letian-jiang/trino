@@ -83,7 +83,7 @@ public class IcebergTransactionManager
             return Optional.ofNullable(metadata);
         }
 
-        public synchronized IcebergMetadata get(ConnectorIdentity identity)
+        public synchronized IcebergMetadata get(ConnectorIdentity identity) // user identity
         {
             if (metadata == null) {
                 try (ThreadContextClassLoader ignored = new ThreadContextClassLoader(classLoader)) {

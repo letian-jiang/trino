@@ -17,13 +17,16 @@ import io.trino.spi.Page;
 
 public interface HashGenerator
 {
+    // 计算指定tuple的hash值
     long hashPosition(int position, Page page);
 
+    // 获取tuple的partition
     default int getPartition(int partitionCount, int position, Page page)
     {
         long rawHash = hashPosition(position, page);
         // This function reduces the 64 bit rawHash to [0, partitionCount) uniformly. It first reduces the rawHash to 32 bit
         // integer x then normalize it to x / 2^32 * partitionCount to reduce the range of x from [0, 2^32) to [0, partitionCount)
         return (int) ((Integer.toUnsignedLong(Long.hashCode(rawHash)) * partitionCount) >>> 32);
+        // 为什么不直接取mod，更快吗？
     }
 }

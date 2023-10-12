@@ -45,6 +45,7 @@ public class InformationSchemaSplit
     @Override
     public boolean isRemotelyAccessible()
     {
+        // 只能调度到host节点上
         return false;
     }
 

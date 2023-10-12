@@ -111,6 +111,7 @@ public final class InternalResourceGroupManager<C>
     {
         checkState(configurationManager.get() != null, "configurationManager not set");
         createGroupIfNecessary(selectionContext, executor);
+        // 根据id选择resource group,执行query
         groups.get(selectionContext.getResourceGroupId()).run(queryExecution);
     }
 

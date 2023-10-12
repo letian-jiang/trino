@@ -148,6 +148,7 @@ public final class MetadataReader
                             CompressionCodecName.fromParquet(metaData.codec),
                             PARQUET_METADATA_CONVERTER.convertEncodingStats(metaData.encoding_stats),
                             readEncodings(metaData.encodings),
+                            // 统计量
                             readStats(Optional.ofNullable(fileMetaData.getCreated_by()), Optional.ofNullable(metaData.statistics), primitiveType),
                             metaData.data_page_offset,
                             metaData.dictionary_page_offset,

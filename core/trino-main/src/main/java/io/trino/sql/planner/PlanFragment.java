@@ -42,14 +42,14 @@ public class PlanFragment
     private final PlanFragmentId id;
     private final PlanNode root;
     private final Map<Symbol, Type> symbols;
-    private final PartitioningHandle partitioning;
+    private final PartitioningHandle partitioning; // 当前plan的partition
     private final Optional<Integer> partitionCount;
     private final List<PlanNodeId> partitionedSources;
     private final Set<PlanNodeId> partitionedSourcesSet;
     private final List<Type> types;
     private final Set<PlanNode> partitionedSourceNodes;
     private final List<RemoteSourceNode> remoteSourceNodes;
-    private final PartitioningScheme outputPartitioningScheme;
+    private final PartitioningScheme outputPartitioningScheme; // 输出的partition
     private final StatsAndCosts statsAndCosts;
     private final List<CatalogProperties> activeCatalogs;
     private final Optional<String> jsonRepresentation;

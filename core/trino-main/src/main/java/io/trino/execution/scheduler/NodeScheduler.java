@@ -65,6 +65,7 @@ public class NodeScheduler
         return nodeSelectorFactory.createNodeSelector(requireNonNull(session, "session is null"), requireNonNull(catalogHandle, "catalogHandle is null"));
     }
 
+    // 获取所有worker节点，根据参数判断是否包括coordinator
     public static List<InternalNode> getAllNodes(NodeMap nodeMap, boolean includeCoordinator)
     {
         return nodeMap.getNodesByHostAndPort().values().stream()
@@ -72,6 +73,7 @@ public class NodeScheduler
                 .collect(toImmutableList());
     }
 
+    // 返回最多limit个节点
     public static List<InternalNode> selectNodes(int limit, Iterator<InternalNode> candidates)
     {
         checkArgument(limit > 0, "limit must be at least 1");
@@ -127,6 +129,7 @@ public class NodeScheduler
         // if the chosen set is empty and the host is the coordinator, force pick the coordinator
         if (chosen.isEmpty() && !includeCoordinator) {
             for (HostAddress host : hosts) {
+                // 此时host为coordinator
                 // In the code below, before calling `chosen::add`, it could have been checked that
                 // `coordinatorIds.contains(node.getNodeIdentifier())`. But checking the condition isn't necessary
                 // because every node satisfies it. Otherwise, `chosen` wouldn't have been empty.
@@ -167,6 +170,7 @@ public class NodeScheduler
 
         Set<InternalNode> blockedNodes = new HashSet<>();
         for (Split split : splits) {
+            // bucketNodeMap已经指定了split应该如何分配
             // node placement is forced by the bucket to node map
             InternalNode node = bucketNodeMap.getAssignedNode(split);
             SplitWeight splitWeight = split.getSplitWeight();

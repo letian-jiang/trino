@@ -27,8 +27,11 @@ public interface ConnectorSplit
      * during splits assignment.
      * When false, the split will always be scheduled on one of the addresses returned by {@link #getAddresses()}.
      */
+    // 表示能否被调度到任意节点
     boolean isRemotelyAccessible();
 
+    // 如果是remotely accessible，host地址会作为调度的hint
+    // 否则必须调度到host节点
     List<HostAddress> getAddresses();
 
     Object getInfo();

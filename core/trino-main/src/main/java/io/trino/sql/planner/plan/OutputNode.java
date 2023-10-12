@@ -30,7 +30,7 @@ public class OutputNode
         extends PlanNode
 {
     private final PlanNode source;
-    private final List<String> columnNames;
+    private final List<String> columnNames; // input?
     private final List<Symbol> outputs; // column name = symbol
 
     @JsonCreator

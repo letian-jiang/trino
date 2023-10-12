@@ -143,6 +143,7 @@ public class HivePageSourceProvider
                 hiveSplit.getEstimatedFileSize(),
                 hiveSplit.getFileModifiedTime());
 
+        // 判断split所在分区是否需要过滤
         // Perform dynamic partition pruning in case coordinator didn't prune split.
         // This can happen when dynamic filters are collected after partition splits were listed.
         if (shouldSkipSplit(columnMappings, dynamicFilter)) {

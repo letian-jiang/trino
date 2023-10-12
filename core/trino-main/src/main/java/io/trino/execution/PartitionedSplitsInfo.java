@@ -15,6 +15,7 @@ package io.trino.execution;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 
+// immutable
 public final class PartitionedSplitsInfo
 {
     private static final PartitionedSplitsInfo NO_SPLITS_INFO = new PartitionedSplitsInfo(0, 0);

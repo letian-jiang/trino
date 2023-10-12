@@ -40,7 +40,7 @@ public class ColumnIdentity
     private final String name;
     private final TypeCategory typeCategory;
     // Underlying ImmutableMap is used to maintain the column ordering
-    private final Map<Integer, ColumnIdentity> children;
+    private final Map<Integer, ColumnIdentity> children; // nested
     private final Map<Integer, Integer> childFieldIdToIndex;
 
     @JsonCreator

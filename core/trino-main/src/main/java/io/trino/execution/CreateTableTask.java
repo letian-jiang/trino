@@ -293,6 +293,7 @@ public class CreateTableTask
         Map<String, Object> finalProperties = combineProperties(specifiedPropertyKeys, properties, inheritedProperties);
         ConnectorTableMetadata tableMetadata = new ConnectorTableMetadata(tableName.asSchemaTableName(), ImmutableList.copyOf(columns.values()), finalProperties, statement.getComment());
         try {
+            // 调用metadata的createTable接口
             plannerContext.getMetadata().createTable(session, catalogName, tableMetadata, statement.getSaveMode() == IGNORE);
         }
         catch (TrinoException e) {

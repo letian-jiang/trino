@@ -64,7 +64,7 @@ public class CoordinatorDynamicCatalogManager
 
     private enum State { CREATED, INITIALIZED, STOPPED }
 
-    private final CatalogStore catalogStore;
+    private final CatalogStore catalogStore; // catalog stored
     private final CatalogFactory catalogFactory;
     private final Executor executor;
 
@@ -130,7 +130,7 @@ public class CoordinatorDynamicCatalogManager
             executeUntilFailure(
                     executor,
                     catalogStore.getCatalogs().stream()
-                            .map(storedCatalog -> (Callable<?>) () -> {
+                            .map(storedCatalog -> (Callable<?>) () -> { // map stored catalog to tasks
                                 CatalogProperties catalog = null;
                                 try {
                                     catalog = storedCatalog.loadProperties();
@@ -240,8 +240,10 @@ public class CoordinatorDynamicCatalogManager
     @Override
     public ConnectorServices getConnectorServices(CatalogHandle catalogHandle)
     {
+        // 根据root handle找到catalog
         CatalogConnector catalogConnector = allCatalogs.get(catalogHandle.getRootCatalogHandle());
         checkArgument(catalogConnector != null, "No catalog '%s'", catalogHandle.getCatalogName());
+        // 根据handle找到connector
         return catalogConnector.getMaterializedConnector(catalogHandle.getType());
     }
 

@@ -157,6 +157,7 @@ public class DispatchManager
                     .setParent(Context.current().with(querySpan))
                     .startSpan();
             try (var ignored = scopedSpan(span)) {
+                // 创建并提交query
                 createQueryInternal(queryId, querySpan, slug, sessionContext, query, resourceGroupManager);
             }
             finally {
@@ -188,6 +189,7 @@ public class DispatchManager
             accessControl.checkCanExecuteQuery(sessionContext.getIdentity());
 
             // prepare query
+            // parse后构造prepared query
             preparedQuery = queryPreparer.prepareQuery(session, query);
 
             // select resource group
@@ -204,6 +206,7 @@ public class DispatchManager
             // apply system default session properties (does not override user set properties)
             session = sessionPropertyDefaults.newSessionWithDefaultProperties(session, queryType, selectionContext.getResourceGroupId());
 
+            // 构造dispatch query
             DispatchQuery dispatchQuery = dispatchQueryFactory.createDispatchQuery(
                     session,
                     sessionContext.getTransactionId(),

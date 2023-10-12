@@ -115,6 +115,7 @@ public class PipelinedStageExecution
     private final Map<PlanFragmentId, RemoteSourceNode> exchangeSources;
     private final int attempt;
 
+    // partition -> task
     private final Map<Integer, RemoteTask> tasks = new ConcurrentHashMap<>();
 
     // current stage task tracking
@@ -325,6 +326,7 @@ public class PipelinedStageExecution
 
         task.addStateChangeListener(this::updateTaskStatus);
 
+        // 开始执行task
         task.start();
 
         taskLifecycleListener.taskCreated(stage.getFragment().getId(), task);

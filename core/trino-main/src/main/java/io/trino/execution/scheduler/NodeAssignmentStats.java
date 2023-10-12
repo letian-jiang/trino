@@ -30,8 +30,8 @@ import static java.util.Objects.requireNonNull;
 
 public final class NodeAssignmentStats
 {
-    private final NodeTaskMap nodeTaskMap;
-    private final Map<InternalNode, PartitionedSplitsInfo> nodeTotalSplitsInfo;
+    private final NodeTaskMap nodeTaskMap; // node -> tasks
+    private final Map<InternalNode, PartitionedSplitsInfo> nodeTotalSplitsInfo; // node -> splitsInfo(count, sum)
     private final Map<String, PendingSplitInfo> stageQueuedSplitInfo;
 
     public NodeAssignmentStats(NodeTaskMap nodeTaskMap, NodeMap nodeMap, List<RemoteTask> existingTasks)
@@ -105,8 +105,11 @@ public final class NodeAssignmentStats
 
     private static final class PendingSplitInfo
     {
+        // base
         private final long queuedSplitsWeight;
         private final int unacknowledgedSplitCount;
+
+        // increment
         private int assignedSplits;
         private long assignedSplitsWeight;
 

@@ -48,6 +48,7 @@ public class InformationSchemaSplitManager
             DynamicFilter dynamicFilter,
             Constraint constraint)
     {
+        // coordinator的地址
         List<HostAddress> localAddress = ImmutableList.of(nodeManager.getCurrentNode().getHostAndPort());
         ConnectorSplit split = new InformationSchemaSplit(localAddress);
         return new FixedSplitSource(ImmutableList.of(split));

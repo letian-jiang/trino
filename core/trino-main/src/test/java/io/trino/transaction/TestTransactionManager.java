@@ -125,6 +125,7 @@ public class TestTransactionManager
             assertTrue(transactionInfo.getCatalogNames().isEmpty());
             assertFalse(transactionInfo.getWrittenCatalogName().isPresent());
 
+            // 从txn manager中拿到connector metadata
             ConnectorMetadata metadata = transactionManager.getOptionalCatalogMetadata(transactionId, TEST_CATALOG_NAME).get().getMetadata(TEST_SESSION);
             metadata.listSchemaNames(TEST_SESSION.toConnectorSession(TEST_CATALOG_HANDLE));
             transactionInfo = transactionManager.getTransactionInfo(transactionId);

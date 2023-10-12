@@ -221,6 +221,7 @@ public class HivePartitionManager
         return partitionMatches(partitionColumns, constraintSummary, partition) && constraint.test(partition.getKeys());
     }
 
+    // 判断分区是否匹配
     public static boolean partitionMatches(List<HiveColumnHandle> partitionColumns, TupleDomain<ColumnHandle> constraintSummary, HivePartition partition)
     {
         if (constraintSummary.isNone()) {

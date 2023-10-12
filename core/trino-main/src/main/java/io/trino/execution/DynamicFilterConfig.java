@@ -40,6 +40,7 @@ public class DynamicFilterConfig
     private boolean enableCoordinatorDynamicFiltersDistribution = true;
     private boolean enableLargeDynamicFilters;
 
+    // FTE是什么？
     /*
      * dynamic-filtering.small.* and dynamic-filtering.large.* limits are applied when
      * collected over a not pre-partitioned source (when join distribution type is

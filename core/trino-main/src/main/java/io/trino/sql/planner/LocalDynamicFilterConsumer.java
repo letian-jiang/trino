@@ -130,6 +130,8 @@ public class LocalDynamicFilterConsumer
                 return;
             }
 
+            // 所有partition收集完毕
+
             if (sizeLimitExceeded || domain.isAll()) {
                 clearSummaryDomains();
                 result = TupleDomain.all();
@@ -145,6 +147,7 @@ public class LocalDynamicFilterConsumer
             collected = true;
         }
 
+        // 将union结果发送给collector
         collectors.forEach(collector -> collector.accept(convertTupleDomain(result)));
     }
 

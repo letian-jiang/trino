@@ -422,6 +422,7 @@ public class BackgroundHiveSplitLoader
         List<HivePartitionKey> partitionKeys = getPartitionKeys(table, partition.getPartition());
         TupleDomain<HiveColumnHandle> effectivePredicate = compactEffectivePredicate.transformKeys(HiveColumnHandle.class::cast);
 
+        // 过滤分区
         BooleanSupplier partitionMatchSupplier = createPartitionMatchSupplier(dynamicFilter, hivePartition, getPartitionKeyColumnHandles(table, typeManager));
         if (!partitionMatchSupplier.getAsBoolean()) {
             // Avoid listing files and creating splits from a partition if it has been pruned due to dynamic filters

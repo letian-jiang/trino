@@ -34,6 +34,8 @@ public class CatalogTransaction
 {
     private final Tracer tracer;
     private final CatalogHandle catalogHandle;
+
+    // 通过connector和connector提供的txn handle进行事务的操作
     private final Connector connector;
     private final ConnectorTransactionHandle transactionHandle;
     @GuardedBy("this")
@@ -57,6 +59,7 @@ public class CatalogTransaction
         return catalogHandle;
     }
 
+    // 是否支持多行的写入事务
     public boolean isSingleStatementWritesOnly()
     {
         return connector.isSingleStatementWritesOnly();
@@ -66,6 +69,7 @@ public class CatalogTransaction
     {
         checkState(!finished.get(), "Already finished");
         if (connectorMetadata == null) {
+            // 将session转化为connector session，注意connector session并不是spi
             ConnectorSession connectorSession = session.toConnectorSession(catalogHandle);
             connectorMetadata = connector.getMetadata(connectorSession, transactionHandle);
             connectorMetadata = tracingConnectorMetadata(catalogHandle.getCatalogName(), connectorMetadata);
@@ -81,6 +85,7 @@ public class CatalogTransaction
 
     public void commit()
     {
+        // 保证commit或abort执行一次
         if (finished.compareAndSet(false, true)) {
             connector.commit(transactionHandle);
         }
@@ -88,6 +93,7 @@ public class CatalogTransaction
 
     public void abort()
     {
+        // 保证commit或abort执行一次
         if (finished.compareAndSet(false, true)) {
             connector.rollback(transactionHandle);
         }

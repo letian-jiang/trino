@@ -21,11 +21,13 @@ import java.util.function.ToIntFunction;
 
 public interface ConnectorNodePartitioningProvider
 {
+    // bucket -> node
     default Optional<ConnectorBucketNodeMap> getBucketNodeMapping(ConnectorTransactionHandle transactionHandle, ConnectorSession session, ConnectorPartitioningHandle partitioningHandle)
     {
         return Optional.empty();
     }
 
+    // 返回函数 split -> bucket
     default ToIntFunction<ConnectorSplit> getSplitBucketFunction(ConnectorTransactionHandle transactionHandle, ConnectorSession session, ConnectorPartitioningHandle partitioningHandle)
     {
         return split -> {
@@ -33,6 +35,7 @@ public interface ConnectorNodePartitioningProvider
         };
     }
 
+    // 返回函数 record -> bucket
     BucketFunction getBucketFunction(
             ConnectorTransactionHandle transactionHandle,
             ConnectorSession session,
